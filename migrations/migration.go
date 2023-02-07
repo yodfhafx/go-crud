@@ -14,6 +14,8 @@ func Migrate() {
 		gormigrate.DefaultOptions,
 		[]*gormigrate.Migration{
 			m1675671925CreateArticlesTable(),
+			m1675745269CreateCategoriesTable(),
+			m1675747773AddCategoryIDToArticles(),
 		},
 	)
 

@@ -18,25 +18,32 @@ type Articles struct {
 }
 
 type createArticleForm struct {
-	Title   string                `form:"title" binding:"required"`
-	Body    string                `form:"body" binding:"required"`
-	Excerpt string                `form:"excerpt" binding:"required"`
-	Image   *multipart.FileHeader `form:"image" binding:"required"`
+	Title      string                `form:"title" binding:"required"`
+	Body       string                `form:"body" binding:"required"`
+	Excerpt    string                `form:"excerpt" binding:"required"`
+	CategoryID uint                  `form:"categoryId" binding:"required"`
+	Image      *multipart.FileHeader `form:"image" binding:"required"`
 }
 
 type updateArticleForm struct {
-	Title   string                `form:"title"`
-	Body    string                `form:"body"`
-	Excerpt string                `form:"excerpt"`
-	Image   *multipart.FileHeader `form:"image"`
+	Title      string                `form:"title"`
+	Body       string                `form:"body"`
+	Excerpt    string                `form:"excerpt"`
+	CategoryID uint                  `form:"categoryId"`
+	Image      *multipart.FileHeader `form:"image"`
 }
 
 type articleResponse struct {
-	ID      uint   `json:"id"`
-	Title   string `json:"title"`
-	Excerpt string `json:"excerpt"`
-	Body    string `json:"body"`
-	Image   string `json:"image"`
+	ID         uint   `json:"id"`
+	Title      string `json:"title"`
+	Excerpt    string `json:"excerpt"`
+	Body       string `json:"body"`
+	Image      string `json:"image"`
+	CategoryID uint   `json:"categoryId"`
+	Category   struct {
+		ID   uint   `json:"id"`
+		Name string `json:"name"`
+	} `json:"category"`
 }
 
 type articlesPaging struct {
@@ -48,7 +55,7 @@ func (a *Articles) FindAll(ctx *gin.Context) {
 	var articles []models.Article
 
 	// a.DB.Find(&articles)
-	paging := pagingResource(ctx, a.DB.Order("id desc"), &articles)
+	paging := pagingResource(ctx, a.DB.Preload("Category").Order("id desc"), &articles)
 
 	var serializedArticles []articleResponse
 	copier.Copy(&serializedArticles, &articles)
@@ -141,7 +148,7 @@ func (a *Articles) Delete(ctx *gin.Context) {
 		return
 	}
 
-	a.DB.Delete(&article)
+	a.DB.Unscoped().Delete(&article)
 	ctx.Status(http.StatusNoContent)
 }
 
@@ -174,7 +181,7 @@ func (a *Articles) findArticleByID(ctx *gin.Context) (*models.Article, error) {
 	var article models.Article
 	id := ctx.Param("id")
 
-	if err := a.DB.First(&article, id).Error; err != nil {
+	if err := a.DB.Preload("Category").First(&article, id).Error; err != nil {
 		return nil, err
 	}
 
