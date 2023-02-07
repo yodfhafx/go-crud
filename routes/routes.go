@@ -4,11 +4,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/yodfhafx/go-crud/config"
 	"github.com/yodfhafx/go-crud/controllers"
+	"github.com/yodfhafx/go-crud/middleware"
 )
 
 func Serve(r *gin.Engine) {
 	db := config.GetDB()
 	v1 := r.Group("/api/v1")
+
+	authGroup := v1.Group("auth")
+	authController := controllers.Auth{DB: db}
+	{
+		authGroup.POST("/sign-up", authController.Signup)
+		authGroup.POST("/sign-in", middleware.Authenticate().LoginHandler)
+	}
+
 	articlesGroup := v1.Group("articles")
 	articleController := controllers.Articles{DB: db}
 	{
