@@ -3,6 +3,7 @@ module github.com/yodfhafx/go-crud
 go 1.19
 
 require (
+	github.com/bxcodec/faker/v4 v4.0.0-beta.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.8.2 // indirect
 	github.com/go-gormigrate/gormigrate/v2 v2.0.2 // indirect
