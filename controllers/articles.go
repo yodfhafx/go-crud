@@ -44,6 +44,10 @@ type articleResponse struct {
 		ID   uint   `json:"id"`
 		Name string `json:"name"`
 	} `json:"category"`
+	User struct {
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+	} `json:"user"`
 }
 
 type articlesPaging struct {
@@ -55,7 +59,7 @@ func (a *Articles) FindAll(ctx *gin.Context) {
 	var articles []models.Article
 
 	// a.DB.Find(&articles)
-	paging := pagingResource(ctx, a.DB.Preload("Category").Order("id desc"), &articles)
+	paging := pagingResource(ctx, a.DB.Preload("User").Preload("Category").Order("id desc"), &articles)
 
 	var serializedArticles []articleResponse
 	copier.Copy(&serializedArticles, &articles)
@@ -90,7 +94,9 @@ func (a *Articles) Create(ctx *gin.Context) {
 	}
 
 	var article models.Article
+	user, _ := ctx.Get("sub")
 	copier.Copy(&article, &form)
+	article.User = *user.(*models.User)
 
 	if err := a.DB.Create(&article).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -181,7 +187,7 @@ func (a *Articles) findArticleByID(ctx *gin.Context) (*models.Article, error) {
 	var article models.Article
 	id := ctx.Param("id")
 
-	if err := a.DB.Preload("Category").First(&article, id).Error; err != nil {
+	if err := a.DB.Preload("User").Preload("Category").First(&article, id).Error; err != nil {
 		return nil, err
 	}
 

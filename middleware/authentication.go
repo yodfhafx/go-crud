@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/appleboy/gin-jwt/v2"
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/yodfhafx/go-crud/config"
 	"github.com/yodfhafx/go-crud/models"
@@ -24,6 +24,22 @@ func Authenticate() *jwt.GinJWTMiddleware {
 		Key: []byte(os.Getenv("SECRET_KEY")),
 
 		IdentityKey: identityKey,
+
+		TokenLookup:   "header: Authorization",
+		TokenHeadName: "Bearer",
+
+		IdentityHandler: func(c *gin.Context) interface{} {
+			var user models.User
+			claims := jwt.ExtractClaims(c)
+			id := claims[identityKey]
+
+			db := config.GetDB()
+			if err := db.First(&user, uint(id.(float64))).Error; err != nil {
+				return nil
+			}
+
+			return &user
+		},
 
 		// login => user
 		Authenticator: func(c *gin.Context) (interface{}, error) {
