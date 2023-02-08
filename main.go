@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/yodfhafx/go-crud/config"
@@ -21,7 +22,12 @@ func main() {
 	migrations.Migrate()
 	// seed.Load()
 
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AddAllowHeaders("Authorization")
+
 	r := gin.Default()
+	r.Use(cors.New(corsConfig))
 	r.Static("uploads/", "./uploads")
 
 	uploadDirs := [...]string{"articles", "users"}
