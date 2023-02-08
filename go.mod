@@ -3,8 +3,10 @@ module github.com/yodfhafx/go-crud
 go 1.19
 
 require (
+	github.com/Knetic/govaluate v3.0.1-0.20171022003610-9aa49832a739+incompatible // indirect
 	github.com/appleboy/gin-jwt/v2 v2.9.1 // indirect
 	github.com/bxcodec/faker/v4 v4.0.0-beta.3 // indirect
+	github.com/casbin/casbin/v2 v2.61.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.8.2 // indirect
 	github.com/go-gormigrate/gormigrate/v2 v2.0.2 // indirect

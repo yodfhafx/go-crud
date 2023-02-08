@@ -50,6 +50,16 @@ type articleResponse struct {
 	} `json:"user"`
 }
 
+type createdOrUpdatedResponse struct {
+	ID         uint   `json:"id"`
+	Title      string `json:"title"`
+	Excerpt    string `json:"excerpt"`
+	Body       string `json:"body"`
+	Image      string `json:"image"`
+	CategoryID uint   `json:"categoryId"`
+	UserID     uint   `json:"userId"`
+}
+
 type articlesPaging struct {
 	Items  []articleResponse `json:"items"`
 	Paging *pagingResult     `json:"paging"`
@@ -58,7 +68,6 @@ type articlesPaging struct {
 func (a *Articles) FindAll(ctx *gin.Context) {
 	var articles []models.Article
 
-	// a.DB.Find(&articles)
 	paging := pagingResource(ctx, a.DB.Preload("User").Preload("Category").Order("id desc"), &articles)
 
 	var serializedArticles []articleResponse
@@ -106,7 +115,7 @@ func (a *Articles) Create(ctx *gin.Context) {
 	}
 
 	a.setArticleImage(ctx, &article)
-	serializedArticle := articleResponse{}
+	serializedArticle := createdOrUpdatedResponse{}
 	copier.Copy(&serializedArticle, &article)
 	ctx.JSON(http.StatusCreated, gin.H{
 		"article": serializedArticle,
@@ -138,7 +147,7 @@ func (a *Articles) Update(ctx *gin.Context) {
 	}
 
 	a.setArticleImage(ctx, article)
-	var serializedArticle articleResponse
+	var serializedArticle createdOrUpdatedResponse
 	copier.Copy(&serializedArticle, article)
 	ctx.JSON(http.StatusOK, gin.H{
 		"article": serializedArticle,
