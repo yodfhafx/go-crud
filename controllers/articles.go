@@ -67,10 +67,21 @@ type articlesPaging struct {
 
 func (a *Articles) FindAll(ctx *gin.Context) {
 	var articles []models.Article
+	query := a.DB.Preload("User").Preload("Category").Order("id desc")
 
-	paging := pagingResource(ctx, a.DB.Preload("User").Preload("Category").Order("id desc"), &articles)
+	categoryID := ctx.Query("categoryId")
+	if categoryID != "" {
+		query = query.Where("category_id = ?", categoryID)
+	}
 
-	var serializedArticles []articleResponse
+	term := ctx.Query("term")
+	if term != "" {
+		query = query.Where("title ILIKE ?", "%"+term+"%")
+	}
+
+	paging := pagingResource(ctx, query, &articles)
+
+	serializedArticles := []articleResponse{}
 	copier.Copy(&serializedArticles, &articles)
 	ctx.JSON(http.StatusOK, gin.H{
 		"articles": articlesPaging{Items: serializedArticles, Paging: paging},

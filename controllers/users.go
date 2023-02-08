@@ -44,9 +44,16 @@ type usersPaging struct {
 
 func (u *Users) FindAll(ctx *gin.Context) {
 	var users []models.User
-	paging := pagingResource(ctx, u.DB.Order("id desc"), &users)
+	query := u.DB.Order("id desc")
 
-	var serializedUsers []userResponse
+	term := ctx.Query("term")
+	if term != "" {
+		query = query.Where("name ILIKE ?", "%"+term+"%")
+	}
+
+	paging := pagingResource(ctx, query, &users)
+
+	serializedUsers := []userResponse{}
 	copier.Copy(&serializedUsers, &users)
 	ctx.JSON(http.StatusOK, gin.H{
 		"users": usersPaging{Items: serializedUsers, Paging: paging},
