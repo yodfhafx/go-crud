@@ -110,7 +110,11 @@ func (u *Users) Update(ctx *gin.Context) {
 		user.Password = user.GenerateEncryptedPassword()
 	}
 
-	if err := u.DB.Model(&user).Updates(&form).Error; err != nil {
+	user.Email = form.Email
+	user.Password = form.Password
+	user.Name = form.Name
+
+	if err := u.DB.Model(&user).Updates(&user).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}

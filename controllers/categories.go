@@ -108,7 +108,10 @@ func (c *Categories) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.DB.Model(&category).Updates(&form).Error; err != nil {
+	category.Name = form.Name
+	category.Desc = form.Desc
+
+	if err := c.DB.Model(&category).Updates(&category).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"error": err.Error(),
 		})

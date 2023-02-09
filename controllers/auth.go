@@ -82,8 +82,11 @@ func (a *Auth) UpdateProfile(ctx *gin.Context) {
 	// type assertion
 	user := sub.(*models.User)
 
+	user.Email = form.Email
+	user.Name = form.Name
+
 	setUserImage(ctx, user)
-	if err := a.DB.Model(user).Updates(&form).Error; err != nil {
+	if err := a.DB.Model(user).Updates(&user).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"error": err.Error(),
 		})

@@ -150,7 +150,12 @@ func (a *Articles) Update(ctx *gin.Context) {
 		return
 	}
 
-	if err := a.DB.Model(&article).Updates(&form).Error; err != nil {
+	article.Title = form.Title
+	article.Body = form.Body
+	article.Excerpt = form.Excerpt
+	article.CategoryID = form.CategoryID
+
+	if err := a.DB.Model(&article).Updates(&article).Error; err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"error": err.Error(),
 		})
